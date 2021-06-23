@@ -1,0 +1,38 @@
+body{
+  background-image: url(ImageGTC/background.png);
+}
+.menu-logo{
+  width=380px;
+}
+
+.twitter{
+  border=0;
+  width=45;
+  height=45;
+}
+
+.fb{
+  border=0;
+  width=40;
+  height=40;
+}
+
+.Google{
+  border=0;
+  width=35;
+   height=35;
+}
+
+.Coffe{
+   border=0;
+   width=120;
+   height=80;
+}
+
+.Reseaux{
+  margin-top:px;
+}
+
+.paypal{
+  margin-top:80px;
+}
