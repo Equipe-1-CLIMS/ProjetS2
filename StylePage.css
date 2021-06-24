@@ -5,3 +5,16 @@ body{
 .retour{
   text-align: right;
 }
+
+@font-face {
+    font-family: 'Super-Mario-Bros--3';
+    src: url('Super-Mario-Bros--3.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+div {
+  font-family: 'Super-Mario-Bros--3';
+  font-size: 14px;
+}
