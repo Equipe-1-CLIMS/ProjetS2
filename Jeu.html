@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Guess The Correlation</title>
+    <link rel="stylesheet" type="text/css" href="StylePage.css">
+    <link rel="shortcut icon" href="ImageGTC/GuessIcon.ico" type="images/x-icon">
+
+    <script src='https://cdn.plot.ly/plotly-2.0.0.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+    <script src="spearson.js"></script>
+  </head>
+
+  <body>
+
+<!-- Affichage/disparition des boutons cliquable -->
+
+    <div id="guess" >
+    <img src="imageGTC/guess.png" style="width:130px; height:55px; position:absolute; top:176px; left:800px" onclick="toggleDisplay('guess');toggleDisplay('next');javascript:calculdiff();javascript:comptage()"></img>
+    <input name="valeur" type="number" id="corrjoueur" value="0.0" style="width:120px; height:40px; border-width:4px; background-color:lightgrey ;border-color:black; position:absolute; top:180px; left:650px" ></input>
+    </div>
+
+    <div id="next" style="display: none;">
+    <img id="page2" src="imageGTC/next.png" style="width:130px; height:55px; position:absolute; top:470px; left:960px" onclick="toggleDisplay('guess');toggleDisplay('next');javascript:point_alea()"></img>
+    <p style=";position:absolute; top:200px; left:650px; font-size: 15px">true r = <span id="core"></span></p>
+    <p style="position:absolute; top:240px; left:650px; font-size: 15px"> guessed r = <span id="réponse"></span></p>
+    <p style="position:absolute; top:280px; left:650px; font-size: 15px">difference = <span id="difference"></span></p>
+    </div>
+
+    <div id="playagain" > <a href="Jeu.html"><img src="imageGTC/playagain.png" id="gameover" style="position:absolute; top:480px; left:650px"/></a></div>
+
+    <div class="retour"><a href="Menu.html"> MAIN MENU </a></div>
+
+<!-- Affichage vies/ piece  -->
+  <p><div style="position:absolute; top:26x; left:550px; font-size: 20px"><span id="pieces"></span></div></p>
+  <img src="imageGTC/3vies.png" id="imagevies" style="position:absolute; top:25px; left:200px"/>
+  <img src="imageGTC/piece.png" id="pieces" style="position:absolute; top:25px; left:500px">
+
+
+<!--Affichage du graphique avec plotly et forme -->
+
+    <div id="chart" style="position:absolute;top:75px; width:500px; margin-left:100px; height:500px"></div>
+    <script type="text/javascript">
+      Plotly.newPlot('chart', [{
+        x: [0,1],
+        y: [0,1],
+        mode: 'markers',
+        marker: {color: 'rgb(0, 0, 0)', symbol: 'square', size : '5',
+           }
+      }])
+
+//Génération des points aléatoires//
+
+      function point_alea() {
+          var x = [], y = [];   //Initialisation des  points x et y //
+          for (var i = 0; i < 100; i++) { // Boucle qui permet d'avoir 100 coordonées//
+             x[i] = Math.random()+ 0.2*Math.random();
+             var test = 0 ;
+             while (test != 2) {
+               test = 1 ;
+               y[i] = x[i]+0.2*Math.random()- 0.5*Math.random() ;//Choix de ce calcul pour que y et x soient corrélées//
+                    if(y[i] > 2) {
+                        test = test + 1 ;
+                                 }
+                     if(y[i] < 2) {
+                        test = test + 1 ;
+                                }
+                              }
+                                      }
+//Style du graphique//
+                  Plotly.animate('chart', {
+                    data: [{x : x, y : y,}],
+                    layout: {
+                      xaxis: {range: [0,1], dtick: 0.5, mirror: 'ticks', linewidth: 2.5,linecolor:'rgb(200,200,200)',gridcolor: 'rgb(200,200,200)',tickfont:{
+                       family: 'fantasy',size: 18}},
+                      yaxis: {range: [0.,1], dtick: 0.5, mirror: 'ticks',linewidth: 2.5,linecolor:'rgb(200,200,200)',gridcolor: 'rgb(200,200,200)',tickfont:{
+                       family: 'fantasy',size: 18}
+                    }
+                    }
+                  }, )
+
+//Calcul de la corrélation//
+                  const pcorr = (x, y) => {
+                  let sumX = 0,
+                    sumY = 0,
+                    sumXY = 0,
+                    sumX2 = 0,
+                    sumY2 = 0;
+                  const minLength = x.length = y.length = Math.min(x.length, y.length),
+                    reduce = (xi, idx) => {
+                      const yi = y[idx];
+                      sumX += xi;
+                      sumY += yi;
+                      sumXY += xi * yi;
+                      sumX2 += xi * xi;
+                      sumY2 += yi * yi;
+                    }
+                    x.forEach(reduce);
+                    return (minLength * sumXY - sumX * sumY) / Math.sqrt((minLength * sumX2 - sumX * sumX) * (minLength * sumY2 - sumY * sumY));
+                    };
+
+                    document.getElementById("core").innerHTML =pcorr(x, y);
+                  }
+                point_alea () ;
+
+                function calculdiff() {
+
+  var core = document.getElementById("core").innerHTML ;
+
+  var usercorr = document.getElementById("corrjoueur").value ;
+  document.getElementById("réponse").innerHTML = usercorr ;
+
+  var difference=Math.abs(usercorr - core) ;
+  document.getElementById("difference").innerHTML=difference ;
+
+}
+
+// fonction permettant d'afficher la valeur ou la supprimer //
+
+function toggleDisplay(valeur)
+    {
+        valeur = document.getElementById(valeur) ;
+       if(valeur.style.display == "none")
+          valeur.style.display = "" ;
+       else
+          valeur.style.display = "none" ;
+    }
+
+//vies et pieces//
+
+  var pieces = 0 ;
+  var vies = 3 ;
+
+//Comptage des pieces/vies et affichage//
+
+  function comptage() {
+      var difference = document.getElementById("difference").innerHTML;
+
+
+      if (difference <= 0.05){pieces = pieces+5}
+      else if (difference <= 0.10){pieces = pieces+1}
+      document.getElementById("pieces").innerHTML=pieces ;
+
+//Comptage des vies et affichage //
+
+      if (vies < 3) {if (difference <= 0.05){vies = vies+1;}}
+      if (difference > 0.10){vies = vies-1;}
+      if (vies == 0) {document.getElementById("imagevies").src = "imageGTC/0vie.png"}
+      if (vies == 1) {document.getElementById("imagevies").src = "imageGTC/1vie.png"}
+      if (vies == 2) {document.getElementById("imagevies").src = "imageGTC/2vies.png"}
+      if (vies == 3) {document.getElementById("imagevies").src = "imageGTC/3vies.png"}
+      if (vies == 0) {document.getElementById("gameover").src="imageGTC/gameover.png";document.getElementById("page2").src="imageGTC/blanc.png";audio.setAttribute("src", "defaite.mp3")}
+
+}
+
+
+//Calcul corrélation//
+
+
+    </script>
+  </body>
+</html>
